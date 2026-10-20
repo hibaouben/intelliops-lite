@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Non publie]
+
+## [1.0.0] - 2026-10-20
+
 - Agent Notification : alertes, validation humaine, audit (C)
 - Agent Analyse : filtrage, comptage et classification (Etudiant B)
 - Agent Extraction : normalisation des logs, scans et pipelines, masquage des secrets (A)
