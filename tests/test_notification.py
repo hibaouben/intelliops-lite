@@ -1,6 +1,6 @@
 import unittest
 from src.contrat import Analyse, Evenement
-from src.notification import choisir_canal, notifier, rediger, valider_action
+from src.notification import (choisir_canal, notifier, rediger, tracer_decision, valider_action)
 
 def exemple(sensible=True, niveau="CRITICAL"):
     e = Evenement("EVT-00125", "2026-10-05T10:02:11Z", "DOCKER", "backend",
@@ -42,7 +42,28 @@ class TestNotification(unittest.TestCase):
         self.assertEqual(historique, [notif])
         self.assertEqual(e.status, "NOTIFIED")
 
-    def test_validation(self):
+        
+    def test_validation_refus(self):
         _, a = exemple()
-        self.assertTrue(valider_action(a, " OUI "))
-        self.assertFalse(valider_action(a, "n"))    
+        self.assertFalse(valider_action(a, ""))
+        self.assertFalse(valider_action(a, "non"))
+        self.assertTrue(valider_action(a, "Yes"))
+        self.assertTrue(valider_action(a, " ok "))
+
+    def test_validation_action_non_sensible(self):
+        _, a = exemple(sensible=False, niveau="LOW")
+        self.assertTrue(valider_action(a, "n"))
+
+    def test_tracer_decision(self):
+        _, a = exemple()
+        journal = []
+        entree = tracer_decision(a, True, "ops-oncall", journal,
+                                 "2026-10-05T10:10:00Z")
+        self.assertEqual(entree, {
+            "event_id": "EVT-00125",
+            "action": "Redemarrer le service backend",
+            "approved": True,
+            "actor": "ops-oncall",
+            "timestamp": "2026-10-05T10:10:00Z",
+        })
+        self.assertEqual(journal, [entree])  
