@@ -1,3 +1,4 @@
+"""Agent 1 : Extraction. Collecte et normalise les evenements (logs, scans, pipelines)."""
 import re
 
 from src.contrat import Evenement
