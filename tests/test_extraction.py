@@ -35,6 +35,10 @@ class TestMasquerSecrets(unittest.TestCase):
     def test_texte_sans_secret_inchange(self):
         self.assertEqual(masquer_secrets("Service demarre"), "Service demarre")
 
+    def test_bearer(self):
+        self.assertEqual(masquer_secrets("Authorization: Bearer eyJ.abc-1"),
+                         "Authorization: Bearer [SECRET]")
+
 
 class TestNormaliserLog(unittest.TestCase):
     def test_normaliser_log(self):
