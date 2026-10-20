@@ -27,8 +27,19 @@ def chercher_procedures(evt: Evenement, base: dict) -> list:
 
 
 def classifier(evt: Evenement, nb_erreurs: int = 0) -> str:
+    # 1. Priorité absolue : Si le nombre d'erreurs atteint 3 ou plus -> CRITICAL
     if nb_erreurs >= 3:
         return "CRITICAL"
+
+    # 2. Si la sévérité d'origine de l'événement est CRITICAL, on la conserve
+    if evt.severity == "CRITICAL":
+        return "CRITICAL"
+
+    # 3. Si nb_erreurs est >= 1 ou si la sévérité d'origine est HIGH -> HIGH
+    if nb_erreurs >= 1 or evt.severity == "HIGH":
+        return "HIGH"
+
+    # 4. Par défaut, conserver la sévérité de l'événement (ex: LOW)
     return evt.severity
 
 
@@ -36,8 +47,9 @@ def analyser(evt: Evenement, base: dict, nb_erreurs: int = 0) -> Analyse:
     level = classifier(evt, nb_erreurs)
     procs = chercher_procedures(evt, base)
 
-    explanation = " ".join(
-        procs) if procs else "Cause inconnue : analyse manuelle requise"
+    explanation = (
+        " ".join(procs) if procs else "Cause inconnue : analyse manuelle requise"
+    )
 
     if evt.event_type == "VULNERABILITY":
         action = f"Mettre a jour la dependance {evt.component}"
@@ -57,5 +69,5 @@ def analyser(evt: Evenement, base: dict, nb_erreurs: int = 0) -> Analyse:
         explanation=explanation,
         action=action,
         sensitive=sensitive,
-        sources=[evt.source]
+        sources=[evt.source],
     )
