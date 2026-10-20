@@ -14,11 +14,26 @@ def choisir_canal(niveau: str) -> str:
 
 
 def rediger(evt: Evenement, analyse: Analyse) -> str:
-    raise NotImplementedError
+    lignes = [
+        f"[{analyse.level}] Composant : {evt.component}",
+        f"Evenement : {evt.message}",
+        f"Explication : {analyse.explanation}",
+        f"Action proposee : {analyse.action}",
+        f"Sources : {', '.join(analyse.sources)}",
+    ]
+    return "\n".join(lignes)
 
 
 def notifier(evt: Evenement, analyse: Analyse, historique: list) -> Notification:
-    raise NotImplementedError
+    notif = Notification(
+        event_id=evt.id,
+        channel=choisir_canal(analyse.level),
+        recipient="equipe-ops",
+        text=rediger(evt, analyse),
+    )
+    historique.append(notif)
+    evt.status = "NOTIFIED"
+    return notif
 
 
 def valider_action(analyse: Analyse, reponse: str) -> bool:
