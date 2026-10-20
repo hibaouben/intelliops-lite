@@ -1,14 +1,11 @@
 """Agent 1 : Extraction. Collecte et normalise les evenements (logs, scans, pipelines)."""
 import re
-
 from src.contrat import Evenement
-
-# nom=valeur ou nom: valeur ; la valeur s'arrete a un espace, &, , ou ;
 _MOTIF_SECRET = re.compile(
     r"\b(password|passwd|token|secret|api_key|apikey)(\s*[=:]\s*)[^\s&,;]+",
     re.IGNORECASE,
 )
-
+_MOTIF_BEARER = re.compile(r"(Bearer\s+)\S+", re.IGNORECASE)
 _SEVERITES_LOG = {
     "CRITICAL": "CRITICAL",
     "FATAL": "CRITICAL",
@@ -16,7 +13,6 @@ _SEVERITES_LOG = {
     "WARN": "MEDIUM",
     "WARNING": "MEDIUM",
 }
-
 _SEVERITES_SCAN = ("CRITICAL", "HIGH", "MEDIUM", "LOW")
 
 
@@ -31,14 +27,16 @@ def _verifier_cles(rapport: dict, cles: tuple) -> None:
 
 
 def masquer_secrets(texte: str) -> str:
-    return _MOTIF_SECRET.sub(r"\1\2[SECRET]", texte)
+    texte = _MOTIF_SECRET.sub(r"\1\2[SECRET]", texte)
+    return _MOTIF_BEARER.sub(r"\1[SECRET]", texte)
 
 
 def normaliser_log(ligne: str, numero: int, source: str = "DOCKER",
                    environment: str = "production") -> Evenement:
     champs = ligne.split(maxsplit=4)
     if len(champs) < 5:
-        raise ValueError(f"Ligne de log invalide (moins de 5 champs) : {ligne!r}")
+        raise ValueError(
+            f"Ligne de log invalide (moins de 5 champs) : {ligne!r}")
     date, heure, niveau, composant, message = champs
     return Evenement(
         id=_identifiant(numero),
