@@ -27,7 +27,7 @@ def chercher_procedures(evt: Evenement, base: dict) -> list:
 
 
 def classifier(evt: Evenement, nb_erreurs: int = 0) -> str:
-    if nb_erreurs >= 100:
+    if nb_erreurs >= 3:
         return "CRITICAL"
     return evt.severity
 
