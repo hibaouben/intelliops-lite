@@ -2,5 +2,10 @@
 
 ## [Non publie]
 
+## [1.0.0] - 2026-10-20
+
+- Agent Notification : alertes, validation humaine, audit (C)
+- Agent Analyse : filtrage, comptage et classification (Etudiant B)
+- Agent Extraction : normalisation des logs, scans et pipelines, masquage des secrets (A)
 ## [0.1.0]
 - Squelette du projet : contrat, agents vides, workflow, demo.
