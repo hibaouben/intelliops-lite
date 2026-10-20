@@ -1,10 +1,12 @@
 ﻿name: CI
+
 on:
   push:
     branches: [develop, main]
     tags: ["v*"]
   pull_request:
     branches: [develop, main]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -17,3 +19,29 @@ jobs:
         run: python -m compileall -q src tests
       - name: Tests unitaires
         run: python -m unittest -v
+
+  build:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Construire l'artefact
+        run: |
+          mkdir -p dist
+          python -m zipfile -c dist/intelliops-lite-${{ github.ref_name }}.zip src main.py VERSION README.md
+      - name: Publier l'artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: intelliops-lite-${{ github.ref_name }}
+          path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploiement simule
+        run: echo "Deploiement SIMULE de ${{ github.ref_name }} (aucun serveur reel)"
